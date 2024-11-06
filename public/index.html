@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>냉장고 재료 기반 레시피 추천</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f7f9fc;
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      padding: 2rem;
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      background-color: #f1f1f1;
+      display: none;
+      max-height: 300px; /* 결과 창의 최대 높이를 설정 */
+      overflow-y: auto; /* 스크롤이 가능하도록 설정 */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>냉장고 재료 기반 레시피 추천</h1>
+    <input
+      type="text"
+      id="ingredients"
+      placeholder="예: 토마토, 양파, 닭고기"
+    />
+    <button onclick="recommendRecipe()">레시피 추천</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function recommendRecipe() {
+      const ingredients = document.getElementById("ingredients").value;
+      if (!ingredients) {
+        alert("재료를 입력해주세요!");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://192.168.132.56:3000/recipes/recommend", { // 서버 URL 확인
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ingredients: ingredients.split(",") }),
+        });
+
+        if (!response.ok) {
+          throw new Error("서버 오류가 발생했습니다. 다시 시도해 주세요.");
+        }
+
+        const data = await response.json();
+        const resultDiv = document.getElementById("result");
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `<strong>추천된 레시피:</strong> <p>${data.recipe.replace(/\n/g, '<br>')}</p>`;
+      } catch (error) {
+        alert(`에러: ${error.message}`);
+      }
+    }
+  </script>
+</body>
+</html>
